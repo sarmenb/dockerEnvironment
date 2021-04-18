@@ -1,0 +1,56 @@
+version: '3.9'
+
+networks:
+  laravel:
+    name: laravel
+
+
+services:
+###############################################
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
+    container_name: nginx
+    ports:
+      - 8080:8080
+      - 443:443
+    volumes: 
+      - ./sites:/var/www
+    networks:
+      - laravel
+###############################################
+  php:
+    image: php:latest
+    container_name: php_803
+    volumes: 
+      - ./sites:/var/www
+    networks:
+      - laravel
+###############################################
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    ports:
+      - 4306:3306
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    networks:
+      - laravel
+###############################################
+  mailhog:
+    image: mailhog/mailhog
+    logging:
+      driver: 'none' #disable saving logs
+    ports:
+      - 1025:1025 #smtp server
+      - 8025:8025 # web ui
+    networks:
+      - laravel
+ ###############################################
+
